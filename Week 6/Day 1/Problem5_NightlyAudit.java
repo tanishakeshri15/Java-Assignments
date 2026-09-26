@@ -1,0 +1,184 @@
+class LibraryMember {
+
+    protected int borrowLimit;
+
+    private int booksBorrowed;
+
+    private static int membersEnrolled = 0;
+
+    public final String memberNumber;
+
+    public LibraryMember(int borrowLimit) {
+
+        if (borrowLimit <= 0) {
+            throw new IllegalArgumentException(
+                "Borrow limit must be positive"
+            );
+        }
+
+        this.borrowLimit = borrowLimit;
+        this.booksBorrowed = 0;
+
+        membersEnrolled++;
+
+        this.memberNumber =
+            "LIB-" + (100 + membersEnrolled);
+    }
+
+    public void borrowBook() {
+
+        if (booksBorrowed < borrowLimit) {
+            booksBorrowed++;
+        }
+    }
+
+    public void borrowBook(String genre) {
+
+        // Genre is recorded/accepted here,
+        // then the normal borrowing logic is reused.
+        borrowBook();
+    }
+
+    public int getBooksBorrowed() {
+        return booksBorrowed;
+    }
+
+    public static boolean isValidRenewalCode(
+            String code) {
+
+        if (code == null || code.length() != 4) {
+            return false;
+        }
+
+        if (code.charAt(0) != 'R') {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(1))) {
+            return false;
+        }
+
+        if (!Character.isDigit(code.charAt(2))) {
+            return false;
+        }
+
+        if (!Character.isUpperCase(code.charAt(3))) {
+            return false;
+        }
+
+        return true;
+    }
+
+    public static int getMembersEnrolled() {
+        return membersEnrolled;
+    }
+}
+
+
+class FacultyMember extends LibraryMember {
+
+    private String department;
+
+    public FacultyMember(
+            int borrowLimit,
+            String department) {
+
+        super(borrowLimit);
+        this.department = department;
+    }
+}
+
+
+public class Problem5_NightlyAudit {
+
+    static String processNightlyAudit(
+            LibraryMember[] members) {
+
+        int processed = 0;
+        int nullSkipped = 0;
+        int faculty = 0;
+
+        for (int i = 0; i < members.length; i++) {
+
+            if (members[i] == null) {
+
+                nullSkipped++;
+
+            } else {
+
+                processed++;
+
+                if (members[i] instanceof FacultyMember) {
+                    faculty++;
+                }
+            }
+        }
+
+        int regular = processed - faculty;
+
+        return processed
+                + " processed | "
+                + nullSkipped
+                + " null skipped | "
+                + faculty
+                + " faculty | "
+                + regular
+                + " regular";
+    }
+
+
+    public static void main(String[] args) {
+
+        LibraryMember m1 =
+            new LibraryMember(3);
+
+        System.out.println(
+            m1.memberNumber
+        );
+
+        System.out.println(
+            LibraryMember.getMembersEnrolled()
+        );
+
+
+        System.out.println(
+            LibraryMember.isValidRenewalCode("R12A")
+        );
+
+        System.out.println(
+            LibraryMember.isValidRenewalCode("R1A")
+        );
+
+        System.out.println(
+            LibraryMember.isValidRenewalCode("X12A")
+        );
+
+
+        m1.borrowBook();
+        m1.borrowBook("Fiction");
+
+        System.out.println(
+            m1.getBooksBorrowed()
+        );
+
+
+        LibraryMember faculty =
+            new FacultyMember(
+                5,
+                "Physics"
+            );
+
+        LibraryMember regular =
+            new LibraryMember(3);
+
+        LibraryMember[] members = {
+            faculty,
+            null,
+            regular
+        };
+
+        System.out.println(
+            processNightlyAudit(members)
+        );
+    }
+}
